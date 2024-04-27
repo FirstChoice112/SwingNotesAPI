@@ -6,15 +6,31 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const router = express.Router();
+
 const UserModel = require("./models/usersModel");
 const NoteModel = require("./models/notesModel");
+const userController = require("./controllers/users");
 
 //Middleware för att tolka JSON-förfrågningar
 app.use(express.json());
 
+//127.0.0.1:8000/api/user/signup
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
+// POST endpoint för att skapa ett nytt konto för användaren
+app.post("/api/user/signup", userController.createUser);
+
+// POST endpoint för att logga in användaren
+router.post("/api/user/login", async (req, res) => {
+  try {
+    const user = await UserModel.loginUser(req.body);
+    res.json(user);
+  } catch (error) {
+    res.status(401).json({ message: error.message });
+  }
+});
+
 // GET endpoint för att hämta alla anteckningar
 router.get("/api/notes", async (req, res) => {
   try {
@@ -52,26 +68,6 @@ router.delete("/api/notes/:id", async (req, res) => {
     res.status(204).end();
   } catch (error) {
     res.status(400).json({ message: error.message });
-  }
-});
-
-// POST endpoint för att skapa ett nytt konto för användaren
-router.post("/api/user/signup", async (req, res) => {
-  try {
-    const newUser = await UserModel.createUser(req.body);
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// POST endpoint för att logga in användaren
-router.post("/api/user/login", async (req, res) => {
-  try {
-    const user = await UserModel.loginUser(req.body);
-    res.json(user);
-  } catch (error) {
-    res.status(401).json({ message: error.message });
   }
 });
 
