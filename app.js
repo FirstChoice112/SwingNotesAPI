@@ -11,8 +11,21 @@ const UserModel = require("./models/usersModel");
 const NoteModel = require("./models/notesModel");
 const userController = require("./controllers/users");
 
-//Middleware för att tolka JSON-förfrågningar
+//Middleware för att tolka JSON-förfrågningar och hantera error
 app.use(express.json());
+// Middleware som skickar Status 400 - Bad request
+app.use((err, req, res, next) => {
+  if (err) {
+    res.status(400).json({ message: "Bad request 🤔" });
+  } else {
+    next();
+  }
+});
+
+//Middleware som skickar Status 500 - Internal server error
+app.use((err, req, res, next) => {
+  res.status(500).json({ message: "Internal server error 🤯" });
+});
 
 //127.0.0.1:8000/api/user/signup
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +33,11 @@ app.use(express.json());
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // POST endpoint för att skapa ett nytt konto för användaren
 app.post("/api/user/signup", userController.createUser);
+
+//Middleware som skickar Status 404 - Not found
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Not found 🤷‍♂️" });
+});
 
 // POST endpoint för att logga in användaren
 router.post("/api/user/login", async (req, res) => {
