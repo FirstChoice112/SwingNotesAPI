@@ -5,4 +5,5 @@ const path = require("path");
 const databaseFolderPath = path.join(__dirname, "../database");
 const notesDbFilePath = path.join(databaseFolderPath, "notes.db");
 const notesDb = new Datastore({ filename: notesDbFilePath, autoload: true });
+
 module.exports = notesDb;

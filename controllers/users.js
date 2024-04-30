@@ -1,5 +1,6 @@
 const UserModel = require("../models/usersModel");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 //Function to create a new user with a hashed password
 async function createUser(req, res, next) {
   try {
@@ -13,17 +14,45 @@ async function createUser(req, res, next) {
     next(error);
   }
 }
+//function to compare passwords
 async function comparePassword(password, hashedPassword) {
-  const isTheSame = await bcrypt.compare(password, hashedPassword);
-
-  return isTheSame;
+  try {
+    const isTheSame = await bcrypt.compare(password, hashedPassword);
+    return isTheSame;
+  } catch (error) {
+    throw new Error("Error hashing passwords");
+  }
 }
+//Function to find a user
 function findUser(username) {
   return UserModel.findOne({ username: username });
 }
 
-module.exports = { createUser, comparePassword, findUser };
+const loginUser = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await findUser(username);
+    const correctPassword = comparePassword(password, user.password);
 
-// I detta exempel används bcrypt.hash() för att hasha lösenordet med en säkerhetsnivå (salt) på 10.
-// Det hashade lösenordet sparas sedan i databasen istället för det råa lösenordet. När användaren loggar in senare kan du använda bcrypt.compare()
-// för att jämföra det hashade lösenordet med det som användaren anger vid inloggning.
+    const result = {
+      success: false,
+    };
+
+    if (correctPassword) {
+      const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
+        expiresIn: 600,
+      });
+
+      result.success = true;
+      result.token = token;
+    } else {
+      result.message = "faulty login attempt 🤦‍♂️";
+    }
+    res.json(result);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal server error 🤯" });
+  }
+};
+
+module.exports = { createUser, comparePassword, findUser, loginUser };
