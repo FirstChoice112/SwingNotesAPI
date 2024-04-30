@@ -2,16 +2,24 @@ const NoteModel = require("../models/notesModel");
 
 const makeNote = async (noteData) => {
   try {
+    if (noteData.title.length > 50) {
+      throw new Error("Note title is too long 🤷‍♂️");
+    }
+
+    if (noteData.text.length > 300) {
+      throw new Error("Note text is too long 🤷‍♂️");
+    }
+
     const newNote = await NoteModel.insert({
       title: noteData.title,
       text: noteData.text,
       createdAt: noteData.createdAt,
       id: noteData.id,
     });
-    console.log(newNote);
+
     return newNote;
   } catch (error) {
-    throw new Error("Could not create note 😒");
+    throw new Error(error.message);
   }
 };
 
