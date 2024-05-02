@@ -3,11 +3,19 @@ const uuid = require("uuid");
 const moment = require("moment");
 const notesController = require("../controllers/notes");
 const { makeNote } = require("../controllers/notes");
+const UsersModel = require("../models/usersModel");
 //Get endpoint to get all notes
 const getAllNotes = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const notes = await NoteModel.getAllNotes(userId);
+    const userId = req.params.userId;
+    console.log(userId);
+    // Hitta användaren baserat på _id
+    const user = await UsersModel.findOne({ userId: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Hämta anteckningar baserat på användarens _id
+    const notes = await NoteModel.find({ userId });
     res.json(notes);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -23,17 +31,14 @@ function formatTime(date) {
 const createNote = async (req, res) => {
   try {
     const { title, text } = req.body;
-    console.log(req.body);
-    const id = uuid.v4();
+    const userId = req.params.userId;
+    console.log(userId);
+    const noteId = uuid.v4();
     const createdAt = formatTime(new Date());
+    const newNote = { title, text, userId, noteId, createdAt };
+    await NoteModel.insert(newNote);
 
-    const newNote = await makeNote({
-      id,
-      title,
-      text,
-      createdAt,
-    });
-    res.status(201).json({ success: true, note: newNote });
+    res.status(201).json({ success: true, note: { ...newNote, userId } });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
