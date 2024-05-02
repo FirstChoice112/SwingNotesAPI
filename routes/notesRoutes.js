@@ -63,10 +63,12 @@ const updateNote = async (req, res) => {
 //Delete endpoint to delete a note
 const deleteNote = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const { id } = req.params;
-    await NoteModel.deleteNote(userId, id);
-    res.status(204).end();
+    const noteId = req.params.id;
+    await NoteModel.findOne({ noteId });
+    res
+      .status(200)
+      .json({ success: true, message: "Note deleted successfully 😎" })
+      .end();
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

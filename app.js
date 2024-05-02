@@ -47,9 +47,9 @@ app.get("/api/notes/:userId", notesRoutes.getAllNotes);
 //Post endpoint to create a new note
 app.post("/api/notes/:userId", notesRoutes.createNote);
 //Put endpoint to update a note
-app.put("/api/notes/:id", notesRoutes.updateNote);
+app.put("/api/notes/:noteid", notesRoutes.updateNote);
 //Delete endpoint to delete a note
-app.delete("/api/notes/:id", notesRoutes.deleteNote);
+app.delete("/api/notes/:noteid", notesRoutes.deleteNote);
 
 //Middleware som skickar Status 404 - Not found
 app.use((req, res, next) => {
