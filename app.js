@@ -23,13 +23,16 @@ app.use((err, req, res, next) => {
 app.use((err, req, res, next) => {
   res.status(500).json({ message: "Internal server error 🤯" });
 });
-//Middleware för alla endpoints som behöver jwt verifiering
+// Middleware för alla endpoints som behöver jwt verifiering
 app.use("/api", (req, res, next) => {
   if (req.path === "/user/signup" && req.method === "POST") {
     // Undanta endast /api/user/signup POST från JWT-verifiering
     next();
   } else if (req.path === "/user/login" && req.method === "POST") {
     // Undanta /api/user/login POST från JWT-verifiering
+    next();
+  } else if (req.path === "/notes" && req.method === "GET") {
+    // Undanta /api/notes GET från JWT-verifiering
     next();
   } else {
     jwtService(req, res, next);
@@ -40,13 +43,13 @@ app.post("/api/user/signup", userController.createUser);
 // POST endpoint för att logga in användaren
 app.post("/api/user/login", userController.loginUser);
 //Get endpoint to get all notes
-app.get("/api/notes", notesRoutes.getAllNotes);
+app.get("/api/notes/:userId", notesRoutes.getAllNotes);
 //Post endpoint to create a new note
-app.post("/api/notes", notesRoutes.createNote);
+app.post("/api/notes/:userId", notesRoutes.createNote);
 //Put endpoint to update a note
-app.put("/api/notes/:id", notesRoutes.updateNote);
+app.put("/api/notes/:noteid", notesRoutes.updateNote);
 //Delete endpoint to delete a note
-app.delete("/api/notes/:id", notesRoutes.deleteNote);
+app.delete("/api/notes/:noteid", notesRoutes.deleteNote);
 
 //Middleware som skickar Status 404 - Not found
 app.use((req, res, next) => {
