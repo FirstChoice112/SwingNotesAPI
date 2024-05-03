@@ -1,20 +1,19 @@
 const NoteModel = require("../models/notesModel");
 const uuid = require("uuid");
-const moment = require("moment");
-const notesController = require("../controllers/notes");
+const { formatTime } = require("../utils/utils");
 const { makeNote } = require("../controllers/notes");
 const UsersModel = require("../models/usersModel");
+
 //Get endpoint to get all notes
 const getAllNotes = async (req, res) => {
   try {
     const userId = req.params.userId;
-    console.log(userId);
-    // Hitta användaren baserat på _id
     const user = await UsersModel.findOne({ userId: userId });
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found 🥲" });
     }
-    // Hämta anteckningar baserat på användarens _id
+
     const notes = await NoteModel.find({ userId });
     res.json(notes);
   } catch (error) {
@@ -22,21 +21,18 @@ const getAllNotes = async (req, res) => {
   }
 };
 
-// Funktion för att formatera datum till "HH:mm"
-function formatTime(date) {
-  return moment(date).format("HH:mm");
-}
-
 //Post endpoint to create a new note
 const createNote = async (req, res) => {
   try {
     const { title, text } = req.body;
     const userId = req.params.userId;
-    console.log(userId);
     const noteId = uuid.v4();
     const createdAt = formatTime(new Date());
-    const newNote = { title, text, userId, noteId, createdAt };
-    await NoteModel.insert(newNote);
+
+    const newNote = await makeNote({ title, text, userId, noteId, createdAt });
+    {
+      title, text, userId, noteId, createdAt;
+    }
 
     res.status(201).json({ success: true, note: { ...newNote, userId } });
   } catch (error) {
@@ -47,14 +43,27 @@ const createNote = async (req, res) => {
 //Put endpoint to update a note
 const updateNote = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    // const modifiedAt = formatTime(new Date());
-    const updatedNote = await NoteModel.updateNote(
-      userId,
-      req.params.id,
-      req.body
+    const noteId = req.params.noteId;
+    const { title, text } = req.body;
+    const modifiedAt = formatTime(new Date());
+    const existingNote = await NoteModel.findOne({ noteId: noteId });
+
+    if (!existingNote) {
+      return res.status(404).json({ message: "Note not found 🥲" });
+    }
+
+    // Update the note
+    const updatedNote = await NoteModel.update(
+      { noteId: noteId },
+      { $set: { title: title, text: text, modifiedAt: modifiedAt } },
+      { returnUpdatedDocs: true }
     );
-    res.json(updatedNote);
+
+    res.json({
+      success: true,
+      message: "Note updated successfully 😎",
+      note: updatedNote,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
