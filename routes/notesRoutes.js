@@ -12,7 +12,7 @@ const getAllNotes = async (req, res) => {
     // Hitta användaren baserat på _id
     const user = await UsersModel.findOne({ userId: userId });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found 🥲" });
     }
     // Hämta anteckningar baserat på användarens _id
     const notes = await NoteModel.find({ userId });
@@ -32,7 +32,6 @@ const createNote = async (req, res) => {
   try {
     const { title, text } = req.body;
     const userId = req.params.userId;
-    console.log(userId);
     const noteId = uuid.v4();
     const createdAt = formatTime(new Date());
     const newNote = { title, text, userId, noteId, createdAt };
@@ -47,14 +46,29 @@ const createNote = async (req, res) => {
 //Put endpoint to update a note
 const updateNote = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    // const modifiedAt = formatTime(new Date());
-    const updatedNote = await NoteModel.updateNote(
-      userId,
-      req.params.id,
-      req.body
+    const noteId = req.params.noteId;
+    const { title, text } = req.body;
+    const modifiedAt = formatTime(new Date());
+
+    // Hitta den befintliga anteckningen
+    const existingNote = await NoteModel.findOne({ noteId: noteId });
+
+    if (!existingNote) {
+      return res.status(404).json({ message: "Note not found 🥲" });
+    }
+
+    // Uppdatera den befintliga anteckningen
+    const updatedNote = await NoteModel.update(
+      { noteId: noteId },
+      { $set: { title: title, text: text, modifiedAt: modifiedAt } },
+      { returnUpdatedDocs: true }
     );
-    res.json(updatedNote);
+
+    res.json({
+      success: true,
+      message: "Note updated successfully 😎",
+      note: updatedNote,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

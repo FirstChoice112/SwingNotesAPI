@@ -47,7 +47,7 @@ app.get("/api/notes/:userId", notesRoutes.getAllNotes);
 //Post endpoint to create a new note
 app.post("/api/notes/:userId", notesRoutes.createNote);
 //Put endpoint to update a note
-app.put("/api/notes/:noteid", notesRoutes.updateNote);
+app.put("/api/notes/:noteId", notesRoutes.updateNote);
 //Delete endpoint to delete a note
 app.delete("/api/notes/:noteid", notesRoutes.deleteNote);
 
