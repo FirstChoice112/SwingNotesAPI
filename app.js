@@ -31,16 +31,13 @@ app.use("/api", (req, res, next) => {
   } else if (req.path === "/user/login" && req.method === "POST") {
     // Undanta /api/user/login POST från JWT-verifiering
     next();
-  } else if (req.path === "/notes" && req.method === "GET") {
-    // Undanta /api/notes GET från JWT-verifiering
-    next();
   } else {
     jwtService(req, res, next);
   }
 });
-// POST endpoint för att skapa ett nytt konto för användaren
+// POST endpoint to create a new user
 app.post("/api/user/signup", userRoutes.createUser);
-// POST endpoint för att logga in användaren
+// POST endpoint to log in
 app.post("/api/user/login", userRoutes.loginUser);
 //Get endpoint to get all notes
 app.get("/api/notes/:userId", notesRoutes.getAllNotes);
@@ -50,32 +47,27 @@ app.post("/api/notes/:userId", notesRoutes.createNote);
 app.put("/api/notes/:noteId", notesRoutes.updateNote);
 //Delete endpoint to delete a note
 app.delete("/api/notes/:noteid", notesRoutes.deleteNote);
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//Declare the Swagger docs och ui
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocs = require("./utils/swaggerOptions");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-//Middleware som skickar Status 404 - Not found
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//Middleware for Status 404 - Not found
 app.use((req, res, next) => {
   res.status(404).json({ message: "Not found 🤷‍♂️" });
 });
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
-
-// GET endpoint för att söka bland anteckningar
-router.get("/api/notes/search", async (req, res) => {
-  try {
-    // Implementera logiken för att söka bland anteckningar här
-    res.status(501).json({ message: "Not implemented" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
-//Tilldelar värdet av variabeln PORT och BASE_URL från miljövbariablerna i env.
 const PORT = process.env.PORT || 8000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-
-//Startar min Express-server.
+//start the server
 app.listen(PORT, () => {
   console.log(`Listening to the server! 😀 and running at ${BASE_URL}:${PORT}`);
 });
