@@ -1,5 +1,6 @@
 const NoteModel = require("../models/notesModel");
 
+// Make a new note with limitations on title and text.
 const makeNote = async (noteData) => {
   try {
     if (noteData.title.length > 50) {
@@ -14,7 +15,7 @@ const makeNote = async (noteData) => {
       title: noteData.title,
       text: noteData.text,
       createdAt: noteData.createdAt,
-      id: noteData.id,
+      noteId: noteData.noteId,
     });
 
     return newNote;

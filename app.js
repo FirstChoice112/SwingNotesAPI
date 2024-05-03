@@ -5,8 +5,8 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const jwtService = require("./services/jwtService");
-const userController = require("./controllers/users");
 const notesRoutes = require("./routes/notesRoutes");
+const userRoutes = require("./routes/usersRoutes");
 
 //Middleware för att tolka JSON-förfrågningar och hantera error
 app.use(express.json());
@@ -39,9 +39,9 @@ app.use("/api", (req, res, next) => {
   }
 });
 // POST endpoint för att skapa ett nytt konto för användaren
-app.post("/api/user/signup", userController.createUser);
+app.post("/api/user/signup", userRoutes.createUser);
 // POST endpoint för att logga in användaren
-app.post("/api/user/login", userController.loginUser);
+app.post("/api/user/login", userRoutes.loginUser);
 //Get endpoint to get all notes
 app.get("/api/notes/:userId", notesRoutes.getAllNotes);
 //Post endpoint to create a new note
